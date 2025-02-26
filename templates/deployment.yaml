@@ -1,0 +1,57 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceAccount: {{ .Release.Name }}
+  env:
+    - name: AWS_REGION
+      value: {{ .Values.aws.region }}
+    - name: AWS_ACCESS_KEY_ID
+      value: {{ .Values.aws.accessKeyId }}
+    - name: AWS_SECRET_ACCESS_KEY
+      value: {{ .Values.aws.secretAccessKey }}
+    # - name: AWS_ROLE_ARN
+    #   value: {{ .Values.aws.roleArn }}
+  image: public.ecr.aws/aws-observability/aws-otel-collector:latest
+  config: |
+    extensions:
+      health_check:
+      pprof:
+        endpoint: 0.0.0.0:{{ .Values.otel.pprof.port }}
+
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:{{ .Values.otel.grpc.port }}
+          http:
+            endpoint: 0.0.0.0:{{ .Values.otel.http.port }}
+
+    processors:
+      batch:
+
+    exporters:
+      debug:
+        verbosity: detailed
+      awsxray:
+        region: {{ .Values.aws.region }}
+        #role_arn: {{ .Values.aws.roleArn }}
+      awsemf:
+        region: {{ .Values.aws.region }}
+        #role_arn: {{ .Values.aws.roleArn }}
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [awsxray]
+        metrics:
+          receivers: [otlp]
+          exporters: [awsemf]
+
+      extensions: [pprof]
+      telemetry:
+        logs:
+          level: debug

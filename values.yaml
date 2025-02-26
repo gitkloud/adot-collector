@@ -1,0 +1,13 @@
+aws:
+  region: "us-east-1"
+  roleArn: ""
+  accessKeyId: ""
+  secretAccessKey: ""
+
+otel:
+  pprof:
+    port: 1777
+  grpc:
+    port: 4317
+  http:
+    port: 4318
