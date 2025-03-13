@@ -39,18 +39,15 @@ spec:
       awsxray:
         region: {{ .Values.aws.region }}
         #role_arn: {{ .Values.aws.roleArn }}
-      awsemf:
-        region: {{ .Values.aws.region }}
-        #role_arn: {{ .Values.aws.roleArn }}
+      # awsemf:
+      #   region: {{ .Values.aws.region }}
+      #   #role_arn: {{ .Values.aws.roleArn }}
 
     service:
       pipelines:
         traces:
           receivers: [otlp]
           exporters: [awsxray]
-        metrics:
-          receivers: [otlp]
-          exporters: [awsemf]
 
       extensions: [pprof]
       telemetry:
